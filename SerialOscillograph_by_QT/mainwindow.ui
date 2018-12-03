@@ -6,24 +6,17 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>960</width>
-    <height>640</height>
+    <width>800</width>
+    <height>480</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>串口示波器</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout" stretch="8,2,0">
+   <layout class="QVBoxLayout" name="verticalLayout" stretch="8,0">
     <item>
      <widget class="QtCharts::QChartView" name="chartView"/>
-    </item>
-    <item>
-     <widget class="QTextEdit" name="te_receive">
-      <property name="readOnly">
-       <bool>true</bool>
-      </property>
-     </widget>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
@@ -152,7 +145,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>960</width>
+     <width>800</width>
      <height>28</height>
     </rect>
    </property>
@@ -160,9 +153,21 @@
     <property name="title">
      <string>功能菜单</string>
     </property>
+    <addaction name="action"/>
+    <addaction name="action_2"/>
    </widget>
    <addaction name="menu"/>
   </widget>
+  <action name="action">
+   <property name="text">
+    <string>保存数据</string>
+   </property>
+  </action>
+  <action name="action_2">
+   <property name="text">
+    <string>载入数据</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>

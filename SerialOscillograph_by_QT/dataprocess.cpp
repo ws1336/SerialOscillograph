@@ -35,11 +35,10 @@ bool DataProcess::process(char *output)
     if(isFull())
     {
         startFlag=false;
+        loc=0;
         data=data.mid(fullsize-4);
     }
     return false;
-
-
 }
 
 int DataProcess::isStart()
@@ -87,4 +86,11 @@ void DataProcess::add(QByteArray &input)
 {
     data.append(input);
 
+}
+
+void DataProcess::clear()
+{
+    data.clear();
+    startFlag=false;
+    loc=0;
 }

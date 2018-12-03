@@ -7,6 +7,7 @@ class DataProcess
 public:
     DataProcess();
     void add(QByteArray &input);
+    void clear();
     bool process(char* output);
 private:
     int isStart();

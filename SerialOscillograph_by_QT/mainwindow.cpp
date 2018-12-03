@@ -26,14 +26,18 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->chartView->setChart(m_chart);
     ui->chartView->setRubberBand(QChartView::RectangleRubberBand);
     ui->chartView->setRenderHint(QPainter::Antialiasing);
+
     //ui->chartView
     axisX = new QValueAxis;
     axisX->setRange(0,chartSize);
     axisX->setLabelFormat("%g");
-    axisX->setTitleText("axisX");
+    axisX->setTickCount(10);
+    //axisX->setTitleText("axisX");
     axisY = new QValueAxis;
     axisY->setRange(-1.0,1.0);
-    axisY->setTitleText("axisY");
+    axisY->setTickCount(10);
+    //axisY->setTitleText("axisY");
+
 
     for(int i=0;i<Channel_number;++i){
         m_series[i].setColor(color[i]);
@@ -44,12 +48,14 @@ MainWindow::MainWindow(QWidget *parent) :
         m_series[i].setUseOpenGL(true);//openGl 加速
         //qDebug()<<m_series[i].useOpenGL();
     }
-    m_chart->legend()->setLabelColor(QColor(0,0,0));;
+    m_chart->legend()->setLabelColor(QColor(0,0,0));
+    m_chart->legend()->setAlignment(Qt::AlignRight);
+    m_chart->legend()->setMarkerShape(QLegend::MarkerShapeCircle);
+    //m_chart->legend()->setShowToolTips(true);
     //m_chart->legend()->hide();
-    m_chart->setTitle("串口示波器--基于QT");
-    QFont TitleFont;
-    TitleFont.setPixelSize(24);
-    m_chart->setTitleFont(TitleFont);
+    //m_chart->setTitle("串口示波器--基于QT");
+
+
 
 }
 
@@ -61,12 +67,13 @@ MainWindow::~MainWindow()
 void MainWindow::readread()
 {
     QByteArray arr= port->readAll();
-    QString str;
+    bool changed=false;
+    /*QString str;
     for(int i=0;i<arr.length();i++)
     {
         str+=QString("%1").arg((uchar)arr.at(i),2,16,QLatin1Char('0')).toUpper()+" ";
     }
-    ui->te_receive->append(str);
+    ui->textBrowser->append(str);*/
 
     float rec_data[11];
     processor.add(arr);
@@ -83,45 +90,19 @@ void MainWindow::readread()
         {
            points[i].append(QPointF(max-1,rec_data[i+1]));
         }
-
+        changed = true;
     }
-    for(int i=0;i<Channel_number;i++)
+    if(changed)
     {
-       m_series[i].replace(points[i]);
+        for(int i=0;i<Channel_number;i++)
+        {
+           m_series[i].replace(points[i]);
+        }
+        axisX->setRange(min,max);
     }
-    axisX->setRange(min,max);
+
 }
 
-/*
-void MainWindow::on_btn_Send_clicked()
-{
-
-    if(!port->isOpen())
-    {
-        ui->te_receive->append("串口未打开！");
-        return;
-    }
-    else
-    {
-        QString str=ui->le_send->text();
-        QByteArray arr;
-        //arr=str.toLatin1();
-        arr.append("QTSO");
-        int num=2;
-        arr.append((char*)(&num),4);
-        static float data1=0;
-        data1+=0.2;
-        float dataa=qCos(data1);
-        arr.append((char*)(&dataa),4);
-        static float data2=0;
-        data2+=0.3;
-        float datab=qCos(data2);
-        arr.append((char*)(&datab),4);
-
-        port->write(arr);
-    }
-}
-*/
 void MainWindow::on_btn_OpenSerial_clicked()
 {
     if(SerialSta)
@@ -143,6 +124,7 @@ void MainWindow::on_btn_OpenSerial_clicked()
         port->setDataBits(QSerialPort::Data8);
         if(port->open(QIODevice::ReadWrite))
         {
+            processor.clear();
             ui->btn_OpenSerial->setText("关闭串口");
             //ui->labelstatu->setStyleSheet("border-image: url(:/new/img/lv.png);");
             SerialSta=true;
@@ -151,7 +133,8 @@ void MainWindow::on_btn_OpenSerial_clicked()
         else
         {
             SerialSta=false;
-            ui->te_receive->append("串口打开失败！");
+            QMessageBox::information(this,"提示","串口打开失败",QMessageBox::Ok);
+            //ui->te_receive->append("串口打开失败！");
             //ui->labelstatu->setStyleSheet("border-image: url(:/new/img/red.png);");
         }
     }
@@ -171,13 +154,12 @@ void MainWindow::on_btn_StopDis_clicked()
 {
     if(chartSta==false)
     {
-       // timeId = startTimer(30);
+        processor.clear();
         chartSta=true;
         ui->btn_StopDis->setText("暂停更新");
     }
     else
     {
-        //killTimer(timeId);
         chartSta=false;
         ui->btn_StopDis->setText("开始更新");
     }
