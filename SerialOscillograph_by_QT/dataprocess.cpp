@@ -7,7 +7,6 @@ DataProcess::DataProcess()
 
 bool DataProcess::process(char *output)
 {
-
     if(startFlag || isStart()!=0xffffffff)//如果收到包头标志，开始处理
     {
         //预处理
@@ -20,7 +19,7 @@ bool DataProcess::process(char *output)
         //如果接收完成，正式处理
         if(isEnd())
         {
-            for(int i=4;i<isEnd();i++)
+            for(int i=4;i<isEnd()-1;i++)
                 output[i-4]=data.at(i);
             data=data.mid(isEnd());
             startFlag=false;
@@ -60,7 +59,7 @@ int DataProcess::isStart()
 
 int DataProcess::isEnd()
 {
-    if(data.size()<12)
+    if(data.size()<=13)
         return 0;
     int num;
     ((char*)(&num))[0]=data.at(4);
@@ -74,10 +73,11 @@ int DataProcess::isEnd()
         {
             uCRC^=data.at(i);
         }
-        if(uCRC==data.at(8+num*4))
+        if(uCRC==(unsigned char)data.at(8+num*4))
             return 8+num*4+1;
         else
         {
+            qDebug()<<"校验错误";
             data=data.mid(4);
             startFlag=false;
             return 0;

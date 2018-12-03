@@ -27,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->chartView->setRubberBand(QChartView::RectangleRubberBand);
     ui->chartView->setRenderHint(QPainter::Antialiasing);
 
-    //ui->chartView
+    //设置坐标系
     axisX = new QValueAxis;
     axisX->setRange(0,chartSize);
     axisX->setLabelFormat("%g");
@@ -46,12 +46,10 @@ MainWindow::MainWindow(QWidget *parent) :
         m_chart->setAxisX(axisX,&m_series[i]);
         m_chart->setAxisY(axisY,&m_series[i]);
         m_series[i].setUseOpenGL(true);//openGl 加速
-        //qDebug()<<m_series[i].useOpenGL();
     }
     m_chart->legend()->setLabelColor(QColor(0,0,0));
     m_chart->legend()->setAlignment(Qt::AlignRight);
     m_chart->legend()->setMarkerShape(QLegend::MarkerShapeCircle);
-    //m_chart->legend()->setShowToolTips(true);
     //m_chart->legend()->hide();
     //m_chart->setTitle("串口示波器--基于QT");
 
@@ -63,7 +61,6 @@ MainWindow::MainWindow(QWidget *parent) :
     lb_StatusBar_DataRecNum->setText(QString("已接收：%1").arg(dataRecNum));
     ui->statusBar->insertWidget(1,lb_StatusBar_DataRecNum,1);
 
-
 }
 
 MainWindow::~MainWindow()
@@ -74,19 +71,18 @@ MainWindow::~MainWindow()
 void MainWindow::readread()
 {
     QByteArray arr= port->readAll();
-    bool changed=false;
-
     dataRecNum+=arr.size();
-    lb_StatusBar_DataRecNum->setText(QString("已接收：%1").arg(dataRecNum));
+    lb_StatusBar_DataRecNum->setText(QString("已接收：%1").arg(dataRecNum));//修改状态栏
 
-    float rec_data[11];
-    processor.add(arr);
 
-    for(int i=0;i<Channel_number;i++)
+    for(int i=0;i<Channel_number;i++)//得到当前曲线points
     {
        points[i] = m_series[i].pointsVector();
     }
-    while(processor.process((char *)rec_data)&&chartSta==true)
+    bool changed=false;//是否变动了points
+    float rec_data[11];
+    processor.add(arr);//通讯协议processor添加数据
+    while(processor.process((char *)rec_data)&&chartSta==true)//通讯成功 且 正在更新
     {
         min++;
         max++;
@@ -96,7 +92,7 @@ void MainWindow::readread()
         }
         changed = true;
     }
-    if(changed)
+    if(changed)//变动了points，则重绘
     {
         for(int i=0;i<Channel_number;i++)
         {
@@ -116,12 +112,11 @@ void MainWindow::on_btn_OpenSerial_clicked()
         ui->btn_OpenSerial->setText("打开串口");
         //ui->labelstatu->setStyleSheet("border-image: url(:/new/img/red.png);");
         SerialSta=false;
-        //ui->labelstate->setText("串口已关闭！");
     }
     else
     {
 #ifdef Q_OS_WIN
-        port->setPortName(ui->comboBoxserial->currentText());
+        port->setPortName(ui->cb_SerialPort->currentText());
 #else
         port->setPortName("/dev/"+ui->cb_SerialPort->currentText());
 #endif
@@ -134,13 +129,11 @@ void MainWindow::on_btn_OpenSerial_clicked()
             ui->btn_OpenSerial->setText("关闭串口");
             //ui->labelstatu->setStyleSheet("border-image: url(:/new/img/lv.png);");
             SerialSta=true;
-            //ui->labelstate->setText("串口已打开！");
         }
         else
         {
             SerialSta=false;
             QMessageBox::information(this,"提示","串口打开失败",QMessageBox::Ok);
-            //ui->te_receive->append("串口打开失败！");
             //ui->labelstatu->setStyleSheet("border-image: url(:/new/img/red.png);");
         }
     }
