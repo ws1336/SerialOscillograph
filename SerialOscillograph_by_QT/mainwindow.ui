@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
+    <width>880</width>
     <height>480</height>
    </rect>
   </property>
@@ -145,7 +145,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>880</width>
      <height>28</height>
     </rect>
    </property>
@@ -158,6 +158,7 @@
    </widget>
    <addaction name="menu"/>
   </widget>
+  <widget class="QStatusBar" name="statusBar"/>
   <action name="action">
    <property name="text">
     <string>保存数据</string>

@@ -31,17 +31,17 @@ MainWindow::MainWindow(QWidget *parent) :
     axisX = new QValueAxis;
     axisX->setRange(0,chartSize);
     axisX->setLabelFormat("%g");
-    axisX->setTickCount(10);
+    axisX->setTickCount(11);
     //axisX->setTitleText("axisX");
     axisY = new QValueAxis;
     axisY->setRange(-1.0,1.0);
-    axisY->setTickCount(10);
+    axisY->setTickCount(11);
     //axisY->setTitleText("axisY");
 
 
     for(int i=0;i<Channel_number;++i){
         m_series[i].setColor(color[i]);
-        m_series[i].setName(QString("Ch ")+QString::number(i));
+        m_series[i].setName(QString("CH")+QString::number(i));
         m_chart->addSeries(&m_series[i]);
         m_chart->setAxisX(axisX,&m_series[i]);
         m_chart->setAxisY(axisY,&m_series[i]);
@@ -55,6 +55,13 @@ MainWindow::MainWindow(QWidget *parent) :
     //m_chart->legend()->hide();
     //m_chart->setTitle("串口示波器--基于QT");
 
+    lb_StatusBar_SerialStatus = new QLabel;
+    lb_StatusBar_SerialStatus->setText("串口状态：已关闭");
+    ui->statusBar->insertWidget(0,lb_StatusBar_SerialStatus,1);
+
+    lb_StatusBar_DataRecNum = new QLabel;
+    lb_StatusBar_DataRecNum->setText(QString("已接收：%1").arg(dataRecNum));
+    ui->statusBar->insertWidget(1,lb_StatusBar_DataRecNum,1);
 
 
 }
@@ -68,12 +75,9 @@ void MainWindow::readread()
 {
     QByteArray arr= port->readAll();
     bool changed=false;
-    /*QString str;
-    for(int i=0;i<arr.length();i++)
-    {
-        str+=QString("%1").arg((uchar)arr.at(i),2,16,QLatin1Char('0')).toUpper()+" ";
-    }
-    ui->textBrowser->append(str);*/
+
+    dataRecNum+=arr.size();
+    lb_StatusBar_DataRecNum->setText(QString("已接收：%1").arg(dataRecNum));
 
     float rec_data[11];
     processor.add(arr);
@@ -108,6 +112,7 @@ void MainWindow::on_btn_OpenSerial_clicked()
     if(SerialSta)
     {
         port->close();
+        lb_StatusBar_SerialStatus->setText("串口状态：已关闭");
         ui->btn_OpenSerial->setText("打开串口");
         //ui->labelstatu->setStyleSheet("border-image: url(:/new/img/red.png);");
         SerialSta=false;
@@ -125,6 +130,7 @@ void MainWindow::on_btn_OpenSerial_clicked()
         if(port->open(QIODevice::ReadWrite))
         {
             processor.clear();
+            lb_StatusBar_SerialStatus->setText("串口状态：已开启");
             ui->btn_OpenSerial->setText("关闭串口");
             //ui->labelstatu->setStyleSheet("border-image: url(:/new/img/lv.png);");
             SerialSta=true;

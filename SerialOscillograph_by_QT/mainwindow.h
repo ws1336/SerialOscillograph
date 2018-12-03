@@ -6,6 +6,7 @@
 #include <QSerialPort>
 #include <QSerialPortInfo>
 
+
 #include "QtCharts/QChart"
 #include "QLineSeries"
 #include "QValueAxis"
@@ -50,12 +51,16 @@ private:
     bool chartSta;
     QSerialPort *port;
     Ui::MainWindow *ui;
+    QLabel *lb_StatusBar_SerialStatus;
+    QLabel *lb_StatusBar_DataRecNum;
 
     QChart *m_chart;
     QLineSeries m_series[Channel_number];
     QVector<QPointF> points[Channel_number];
     QValueAxis *axisX;
     QValueAxis *axisY;
+
+    unsigned long int dataRecNum=0;
     int chartSize = 200;
     int timeId;
     int min=0;

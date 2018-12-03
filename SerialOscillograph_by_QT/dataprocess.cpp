@@ -67,12 +67,23 @@ int DataProcess::isEnd()
     ((char*)(&num))[1]=data.at(5);
     ((char*)(&num))[2]=data.at(6);
     ((char*)(&num))[3]=data.at(7);
-    if(data.size()>=8+num*4)
+    if(data.size()>=8+num*4+1)
     {
-        return num*4+8;
+        unsigned char uCRC=data.at(8);
+        for(int i=9;i<8+num*4;i++)
+        {
+            uCRC^=data.at(i);
+        }
+        if(uCRC==data.at(8+num*4))
+            return 8+num*4+1;
+        else
+        {
+            data=data.mid(4);
+            startFlag=false;
+            return 0;
+        }
     }
-    else
-        return 0;
+    return 0;
 }
 
 bool DataProcess::isFull()
