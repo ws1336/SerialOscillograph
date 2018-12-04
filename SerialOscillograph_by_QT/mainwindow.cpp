@@ -29,17 +29,17 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //设置坐标系
     axisX = new QValueAxis;
-    axisX->setRange(0,chartSize);
+    axisX->setRange(Xmin,Xmax);
     axisX->setLabelFormat("%g");
     axisX->setTickCount(11);
-    //axisX->setTitleText("axisX");
+    //axisX->setTitleText("X轴");
     axisY = new QValueAxis;
-    axisY->setRange(-1.0,1.0);
+    axisY->setRange(Ymin,Ymax);
     axisY->setTickCount(11);
-    //axisY->setTitleText("axisY");
+    //axisY->setTitleText("Y轴");
 
-
-    for(int i=0;i<Channel_number;++i){
+    for(int i=0;i<Channel_number;++i)
+    {
         m_series[i].setColor(color[i]);
         m_series[i].setName(QString("CH")+QString::number(i));
         m_chart->addSeries(&m_series[i]);
@@ -74,7 +74,6 @@ void MainWindow::readread()
     dataRecNum+=arr.size();
     lb_StatusBar_DataRecNum->setText(QString("已接收：%1").arg(dataRecNum));//修改状态栏
 
-
     for(int i=0;i<Channel_number;i++)//得到当前曲线points
     {
        points[i] = m_series[i].pointsVector();
@@ -84,21 +83,47 @@ void MainWindow::readread()
     processor.add(arr);//通讯协议processor添加数据
     while(processor.process((char *)rec_data)&&chartSta==true)//通讯成功 且 正在更新
     {
-        min++;
-        max++;
         for(int i=0;i<((int *)rec_data)[0];i++)
         {
-           points[i].append(QPointF(max-1,rec_data[i+1]));
+           points[i].append(QPointF(Xmax,rec_data[i+1]));
+
         }
+        Xmax++;
+        if(Xmax-Xmin>200)
+            Xmin++;
         changed = true;
     }
     if(changed)//变动了points，则重绘
     {
+        Ymin=3.4028235e38f;
+        Ymax=1.4e-45f;
         for(int i=0;i<Channel_number;i++)
         {
            m_series[i].replace(points[i]);
+
+           if(points[i].size()>200)
+           {
+               for(int j=points[i].size()-200;j<points[i].size();j++)
+               {
+                   if(points[i].at(j).y()>Ymax)
+                       Ymax=points[i].at(j).y();
+                   if(points[i].at(j).y()<Ymin)
+                       Ymin=points[i].at(j).y();
+               }
+           }
+           else
+           {
+               for(int j=0;j<points[i].size();j++)
+               {
+                   if(points[i].at(j).y()>Ymax)
+                       Ymax=points[i].at(j).y();
+                   if(points[i].at(j).y()<Ymin)
+                       Ymin=points[i].at(j).y();
+               }
+           }
         }
-        axisX->setRange(min,max);
+        axisX->setRange(Xmin,Xmax);
+        axisY->setRange(Ymin,Ymax);
     }
 
 }
@@ -162,4 +187,108 @@ void MainWindow::on_btn_StopDis_clicked()
         chartSta=false;
         ui->btn_StopDis->setText("开始更新");
     }
+}
+
+void MainWindow::on_action_save_triggered()
+{
+    QString filename;
+    filename = QFileDialog::getSaveFileName(this,tr("保存文件"),"",tr("text(*.csv)"));
+    if(filename.isEmpty())
+        return;
+    QFile file(filename);
+    if(!file.open(QFile::WriteOnly|QFile::Text))
+    {
+        QMessageBox::warning(this,tr("Error"),tr("Read file error:%1!").arg(file.errorString()));
+        return ;
+    }
+
+    QTextStream write(&file);
+    write<<writeDataToCSV();
+    file.close();
+
+}
+
+void MainWindow::on_action_load_triggered()
+{
+    QString filename;
+    filename = QFileDialog::getOpenFileName(this,tr("载入文件"),"",tr("text(*.csv)"));
+    if(filename.isEmpty())
+        return;
+    QFile file(filename);
+    if(!file.open(QFile::ReadOnly|QFile::Text))
+    {
+        QMessageBox::warning(this,tr("Error"),tr("Read file error:%1!").arg(file.errorString()));
+        return ;
+    }
+
+    QTextStream read(&file);
+    readDataFromCSV(read);
+    file.close();
+}
+
+QString MainWindow::writeDataToCSV()
+{
+    for(int i=0;i<Channel_number;i++)//得到当前曲线points
+    {
+       points[i] = m_series[i].pointsVector();
+    }
+    QString sDataStr;
+    for(int i=0;i<Channel_number;i++)//得到当前曲线points
+    {
+       sDataStr.append(QString("CH%1:").arg(i));
+       QVector<QPointF>::iterator iter;
+       for(iter=points[i].begin();iter!=points[i].end();iter++)
+       {
+         sDataStr.append(QString(",%1").arg(iter->y()));
+       }
+       sDataStr.append("\n");
+    }
+
+    return sDataStr;
+}
+
+void MainWindow::readDataFromCSV(QTextStream &sDataStream)
+{
+
+    QString sline[10];
+    QString tempValue;
+    int mmax=0;
+    float ymin=3.4028235e38f;
+    float ymax=1.4e-45f;
+    for(int i=0;i<Channel_number;i++)//得到当前曲线points
+    {
+        int xmax=0;
+        points[i].clear();
+        sline[i]=sDataStream.readLine();
+        sline[i]=sline[i].mid(5);
+        while(!sline[i].isEmpty())
+        {
+            if(sline[i].at(0)==',')
+            {
+                sline[i]=sline[i].mid(1);
+                points[i].append(QPointF(xmax++,tempValue.toFloat()));
+                if(tempValue.toFloat()>ymax)
+                    ymax=tempValue.toFloat();
+                if(tempValue.toFloat()<ymin)
+                    ymin=tempValue.toFloat();
+                tempValue.clear();
+            }
+            else
+            {
+                tempValue.append(sline[i].at(0));
+                sline[i]=sline[i].mid(1);
+            }
+        }
+        points[i].append(QPointF(xmax++,tempValue.toFloat()));
+        tempValue.clear();
+        if(xmax>mmax)
+            mmax=xmax;
+    }
+
+    for(int i=0;i<Channel_number;i++)
+    {
+       m_series[i].replace(points[i]);
+    }
+    axisX->setRange(0,mmax);
+    axisY->setRange(ymin,ymax);
 }

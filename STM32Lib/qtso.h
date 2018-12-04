@@ -45,10 +45,10 @@ u8 QTSO_Send(u32 size,float * dat)
 		return 0;
 	for(i=0;i<8+QTSO_DAT.size*4;i++)
 	{
-		while((USART1->SR&0X40)==0);//Ñ­»··¢ËÍ,Ö±µ½·¢ËÍÍê±Ï   
+		while((USART1->SR&0X40)==0);//å¾ªçŽ¯å‘é€,ç›´åˆ°å‘é€å®Œæ¯•   
 			USART1->DR =((u8 *)(&QTSO_DAT))[i];
 	}
-	while((USART1->SR&0X40)==0);//Ñ­»··¢ËÍ,Ö±µ½·¢ËÍÍê±Ï   
+	while((USART1->SR&0X40)==0);//å¾ªçŽ¯å‘é€,ç›´åˆ°å‘é€å®Œæ¯•   
 			USART1->DR =QTSO_DAT.uCRC;
 	return 1;
 }

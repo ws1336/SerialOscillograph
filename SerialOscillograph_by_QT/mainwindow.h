@@ -6,6 +6,8 @@
 #include <QSerialPort>
 #include <QSerialPortInfo>
 
+#include <QFile>
+#include <QFileDialog>
 
 #include "QtCharts/QChart"
 #include "QLineSeries"
@@ -45,6 +47,12 @@ private slots:
 
     void on_btn_StopDis_clicked();
 
+    void on_action_save_triggered();
+
+    void on_action_load_triggered();
+private:
+    QString writeDataToCSV();
+    void readDataFromCSV(QTextStream &sDataStream);
 private:
     bool SerialSta;
     DataProcess processor;
@@ -63,8 +71,10 @@ private:
     unsigned long int dataRecNum=0;
     int chartSize = 200;
     int timeId;
-    int min=0;
-    int max=200;
+    int Xmin=0;
+    int Xmax=0;
+    float Ymin=3.4028235e38f;
+    float Ymax=1.4e-45f;
 };
 
 #endif // MAINWINDOW_H

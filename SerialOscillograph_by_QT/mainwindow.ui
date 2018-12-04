@@ -151,20 +151,20 @@
    </property>
    <widget class="QMenu" name="menu">
     <property name="title">
-     <string>功能菜单</string>
+     <string>菜单</string>
     </property>
-    <addaction name="action"/>
-    <addaction name="action_2"/>
+    <addaction name="action_save"/>
+    <addaction name="action_load"/>
    </widget>
    <addaction name="menu"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <action name="action">
+  <action name="action_save">
    <property name="text">
     <string>保存数据</string>
    </property>
   </action>
-  <action name="action_2">
+  <action name="action_load">
    <property name="text">
     <string>载入数据</string>
    </property>
