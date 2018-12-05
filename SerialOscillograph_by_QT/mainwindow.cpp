@@ -1,9 +1,14 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+/*曲线颜色*/
+/*//调整次序
 const int color[10]={
-    0xff0000,0xff8000,0xffff00,0xc0ff00,
-    0x00ff00,0x00ffff,0x0000ff,0x8000ff,
-    0xff00ff,0x000000,
+    0xff0000,0xffff00,0x00ff00,0x0000ff,0xff00ff,
+    0xff8000,0xc0ff00,0x00ffff,0x8000ff,0x000001,
+};*/
+const int color[10]={
+    0xff0000,0xff8000,0xffff00,0xc0ff00,0x00ff00,
+    0x00ffff,0x0000ff,0x8000ff,0xff00ff,0x000001,
 };
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -40,18 +45,22 @@ MainWindow::MainWindow(QWidget *parent) :
 
     for(int i=0;i<Channel_number;++i)
     {
-        m_series[i].setColor(color[i]);
+        m_series[i].setPen(QPen(QBrush(color[i]), 2));//设置线条颜色和粗细
         m_series[i].setName(QString("CH")+QString::number(i));
         m_chart->addSeries(&m_series[i]);
         m_chart->setAxisX(axisX,&m_series[i]);
         m_chart->setAxisY(axisY,&m_series[i]);
         m_series[i].setUseOpenGL(true);//openGl 加速
     }
+
     m_chart->legend()->setLabelColor(QColor(0,0,0));
     m_chart->legend()->setAlignment(Qt::AlignRight);
+    m_chart->legend()->setContentsMargins(0,0,0,0);
     m_chart->legend()->setMarkerShape(QLegend::MarkerShapeCircle);
     //m_chart->legend()->hide();
     //m_chart->setTitle("串口示波器--基于QT");
+
+    ui->statusBar->setContentsMargins(8,0,0,0);
 
     lb_StatusBar_SerialStatus = new QLabel;
     lb_StatusBar_SerialStatus->setText("串口状态：已关闭");
@@ -83,14 +92,15 @@ void MainWindow::readread()
     processor.add(arr);//通讯协议processor添加数据
     while(processor.process((char *)rec_data)&&chartSta==true)//通讯成功 且 正在更新
     {
+        Xmax++;
+        if(Xmax-Xmin>200)
+            Xmin++;
         for(int i=0;i<((int *)rec_data)[0];i++)
         {
            points[i].append(QPointF(Xmax,rec_data[i+1]));
 
         }
-        Xmax++;
-        if(Xmax-Xmin>200)
-            Xmin++;
+
         changed = true;
     }
     if(changed)//变动了points，则重绘
@@ -167,10 +177,12 @@ void MainWindow::on_btn_OpenSerial_clicked()
 void MainWindow::on_btn_help_clicked()
 {
     QString strtext="1.串口默认设置：1起始位，1停止位，8数据位，无校验位。\n"
-                    "2.数据格式：“QTSO”+通道数(int32)+各个通道数据(float)。\n"
-                    "3.Linux系统非root用户会无法打开串口，解决方案如下：\n"
-                    "    打开串口前在终端中输入指令：sudo chmod 666 /dev/*\n"
-                    "    *符号位置输入序显示的串口号，然后输入计算机用户密码。\n";
+                    "2.数据格式：\"QTSO\"+通道数(int32)+各通道数据(float)。\n"
+                    "3.缩放方式：左键选中区域放大，右键单击区域缩小。\n"
+                    "4.数据保存格式：*.csv\n"
+                    "5.Linux系统非root用户会无法打开串口，解决方案如下：\n"
+                    "    打开串口前在终端输入：sudo chmod 666 /dev/*\n"
+                    "    *号为串口号，回车后输入计算机用户密码，再回车。\n";
     QMessageBox::information(NULL, "帮助信息", strtext, QMessageBox::Ok);
 }
 
@@ -260,6 +272,8 @@ void MainWindow::readDataFromCSV(QTextStream &sDataStream)
         int xmax=0;
         points[i].clear();
         sline[i]=sDataStream.readLine();
+        if(sline[i].size()<6)
+            continue;
         sline[i]=sline[i].mid(5);
         while(!sline[i].isEmpty())
         {
@@ -291,4 +305,19 @@ void MainWindow::readDataFromCSV(QTextStream &sDataStream)
     }
     axisX->setRange(0,mmax);
     axisY->setRange(ymin,ymax);
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+    for(int i=0;i<Channel_number;i++)
+    {
+       points[i].clear();
+       m_series[i].replace(points[i]);
+    }
+    Xmin=0;
+    Xmax=0;
+    Ymin=3.4028235e38f;
+    Ymax=1.4e-45f;
+    axisX->setRange(0,0);
+    axisY->setRange(0,0);
 }

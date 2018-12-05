@@ -50,6 +50,8 @@ private slots:
     void on_action_save_triggered();
 
     void on_action_load_triggered();
+    void on_pushButton_clicked();
+
 private:
     QString writeDataToCSV();
     void readDataFromCSV(QTextStream &sDataStream);

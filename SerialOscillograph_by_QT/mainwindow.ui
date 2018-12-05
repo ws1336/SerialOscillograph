@@ -6,20 +6,41 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>880</width>
-    <height>480</height>
+    <width>900</width>
+    <height>450</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>串口示波器</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout" stretch="8,0">
+   <layout class="QVBoxLayout" name="verticalLayout" stretch="10,0">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
     <item>
      <widget class="QtCharts::QChartView" name="chartView"/>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout">
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="2,2,1,2,2,1,2,2,2,8,2">
+      <property name="leftMargin">
+       <number>10</number>
+      </property>
+      <property name="rightMargin">
+       <number>10</number>
+      </property>
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
@@ -36,6 +57,19 @@
          </sizepolicy>
         </property>
        </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
       </item>
       <item>
        <widget class="QLabel" name="label_2">
@@ -56,8 +90,13 @@
          <bool>true</bool>
         </property>
         <property name="currentIndex">
-         <number>5</number>
+         <number>10</number>
         </property>
+        <item>
+         <property name="text">
+          <string>2400</string>
+         </property>
+        </item>
         <item>
          <property name="text">
           <string>4800</string>
@@ -80,7 +119,27 @@
         </item>
         <item>
          <property name="text">
+          <string>57600</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>76800</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
           <string>115200</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>153600</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>230400</string>
          </property>
         </item>
         <item>
@@ -89,6 +148,19 @@
          </property>
         </item>
        </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_5">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
       </item>
       <item>
        <widget class="QPushButton" name="btn_OpenSerial">
@@ -113,6 +185,13 @@
         </property>
         <property name="text">
          <string>开始更新</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton">
+        <property name="text">
+         <string>清除曲线</string>
         </property>
        </widget>
       </item>
@@ -145,7 +224,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>880</width>
+     <width>900</width>
      <height>26</height>
     </rect>
    </property>
