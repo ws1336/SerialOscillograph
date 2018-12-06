@@ -258,7 +258,17 @@ QString MainWindow::writeDataToCSV()
 
     return sDataStr;
 }
-
+//此函数代码来自SACsvStream
+int advplain(const QString &s, QString &fld, int i)
+{
+    int j;
+    j = s.indexOf(',', i); // 查找,
+    if (j < 0) // 没找到
+        j = s.length();
+    fld = s.mid (i,j-i);//提取内容
+    return j;
+}
+//此函数中部分代码来自SACsvStream
 void MainWindow::readDataFromCSV(QTextStream &sDataStream)
 {
 
@@ -275,34 +285,29 @@ void MainWindow::readDataFromCSV(QTextStream &sDataStream)
         if(sline[i].size()<6)
             continue;
         sline[i]=sline[i].mid(5);
-        while(!sline[i].isEmpty())
-        {
-            if(sline[i].at(0)==',')
-            {
-                sline[i]=sline[i].mid(1);
-                points[i].append(QPointF(xmax++,tempValue.toFloat()));
-                if(tempValue.toFloat()>ymax)
-                    ymax=tempValue.toFloat();
-                if(tempValue.toFloat()<ymin)
-                    ymin=tempValue.toFloat();
-                tempValue.clear();
-            }
-            else
-            {
-                tempValue.append(sline[i].at(0));
-                sline[i]=sline[i].mid(1);
-            }
-        }
-        points[i].append(QPointF(xmax++,tempValue.toFloat()));
-        tempValue.clear();
+        int k=0, j=0;
+        do {
+            j = advplain(sline[i], tempValue, k);
+            points[i].append(QPointF(xmax++,tempValue.toFloat()));
+            if(tempValue.toFloat()>ymax)
+                ymax=tempValue.toFloat();
+            if(tempValue.toFloat()<ymin)
+                ymin=tempValue.toFloat();
+            tempValue.clear();
+            k = j + 1;
+        } while (j < sline[i].length());
         if(xmax>mmax)
             mmax=xmax;
     }
-
     for(int i=0;i<Channel_number;i++)
     {
        m_series[i].replace(points[i]);
     }
+    Xmax=mmax;
+    if(mmax>200)
+        Xmin=mmax-200;
+    else
+        Xmin=0;
     axisX->setRange(0,mmax);
     axisY->setRange(ymin,ymax);
 }
