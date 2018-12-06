@@ -1,5 +1,5 @@
 # SerialOscillograph
-这是一个使用Qt5开发的串口示波器上位机
+这是一个使用Qt5开发的串口示波器上位机。
 
 串口通讯使用了QSerialPort，波形绘制使用了QChart。
 
@@ -11,4 +11,10 @@
 
 合作或意见反馈请联系ws1336@qq.com
 
-持续改进中......
+## 获取windows版本可执行程序
+
+>[![baidu](https://github.com/ws1336/SerialOscillograph/raw/master/Resources/download.jpg "下载链接")](https://github.com/ws1336/SerialOscillograph/releases/download/Beta-v1.0/SerialOscillograph_win32.zip)
+
+## 软件运行示意图
+
+![baidu](https://github.com/ws1336/SerialOscillograph/raw/master/Resources/DEMO.jpg "软件运行示意图")
