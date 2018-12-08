@@ -1,15 +1,15 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 /*曲线颜色*/
-/*//调整次序
+//调整次序
 const int color[10]={
     0xff0000,0xffff00,0x00ff00,0x0000ff,0xff00ff,
     0xff8000,0xc0ff00,0x00ffff,0x8000ff,0x000001,
-};*/
-const int color[10]={
+};
+/*const int color[10]={
     0xff0000,0xff8000,0xffff00,0xc0ff00,0x00ff00,
     0x00ffff,0x0000ff,0x8000ff,0xff00ff,0x000001,
-};
+};*/
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     SerialSta=false;
     port=new QSerialPort;
-    connect(port,SIGNAL(readyRead()),this,SLOT(readread()));
+    connect(port,SIGNAL(readyRead()),this,SLOT(readData()));
     QList<QSerialPortInfo> strlist=QSerialPortInfo::availablePorts();
     QList<QSerialPortInfo>::const_iterator iter;
     for(iter=strlist.constBegin();iter!=strlist.constEnd();++iter)
@@ -67,8 +67,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->statusBar->insertWidget(0,lb_StatusBar_SerialStatus,1);
 
     lb_StatusBar_DataRecNum = new QLabel;
-    lb_StatusBar_DataRecNum->setText(QString("已接收：%1").arg(dataRecNum));
+    lb_StatusBar_DataRecNum->setText(QString("已接收字节：%1").arg(dataRecNum));//修改状态栏
     ui->statusBar->insertWidget(1,lb_StatusBar_DataRecNum,1);
+
+    ui->leXSize->setValidator(new QIntValidator(0, 99999, this));
 
 }
 
@@ -77,11 +79,11 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::readread()
+void MainWindow::readData()
 {
     QByteArray arr= port->readAll();
     dataRecNum+=arr.size();
-    lb_StatusBar_DataRecNum->setText(QString("已接收：%1").arg(dataRecNum));//修改状态栏
+    lb_StatusBar_DataRecNum->setText(QString("已接收字节：%1").arg(dataRecNum));//修改状态栏
 
     for(int i=0;i<Channel_number;i++)//得到当前曲线points
     {
@@ -93,8 +95,8 @@ void MainWindow::readread()
     while(processor.process((char *)rec_data)&&chartSta==true)//通讯成功 且 正在更新
     {
         Xmax++;
-        if(Xmax-Xmin>200)
-            Xmin++;
+        if(Xmax-Xmin>XSize)
+            Xmin+=Xmax-Xmin-XSize;
         for(int i=0;i<((int *)rec_data)[0];i++)
         {
            points[i].append(QPointF(Xmax,rec_data[i+1]));
@@ -111,9 +113,9 @@ void MainWindow::readread()
         {
            m_series[i].replace(points[i]);
 
-           if(points[i].size()>200)
+           if(points[i].size()>XSize)
            {
-               for(int j=points[i].size()-200;j<points[i].size();j++)
+               for(int j=points[i].size()-XSize;j<points[i].size();j++)
                {
                    if(points[i].at(j).y()>Ymax)
                        Ymax=points[i].at(j).y();
@@ -132,8 +134,10 @@ void MainWindow::readread()
                }
            }
         }
-        axisX->setRange(Xmin,Xmax);
-        axisY->setRange(Ymin,Ymax);
+        if(ui->checkBoxXAuto->isChecked())
+            axisX->setRange(Xmin,Xmax);
+        if(ui->checkBoxYAuto->isChecked())
+            axisY->setRange(Ymin,Ymax);
     }
 
 }
@@ -312,7 +316,7 @@ void MainWindow::readDataFromCSV(QTextStream &sDataStream)
     axisY->setRange(ymin,ymax);
 }
 
-void MainWindow::on_pushButton_clicked()
+void MainWindow::on_btn_ClearSeries_clicked()
 {
     for(int i=0;i<Channel_number;i++)
     {
@@ -323,6 +327,13 @@ void MainWindow::on_pushButton_clicked()
     Xmax=0;
     Ymin=3.4028235e38f;
     Ymax=1.4e-45f;
-    axisX->setRange(0,0);
-    axisY->setRange(0,0);
+    axisX->setRange(0,1);
+    axisY->setRange(0,1);
+}
+
+void MainWindow::on_btn_SetXSize_clicked()
+{
+    int xsize=0;
+    XSize=ui->leXSize->text().toInt();
+
 }

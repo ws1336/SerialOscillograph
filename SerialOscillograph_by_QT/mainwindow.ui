@@ -34,7 +34,7 @@
      <widget class="QtCharts::QChartView" name="chartView"/>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout" stretch="2,2,1,2,2,1,2,2,2,8,2">
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,2,1,2,2,2,2,2,1,1,1,10,2">
       <property name="leftMargin">
        <number>10</number>
       </property>
@@ -57,19 +57,6 @@
          </sizepolicy>
         </property>
        </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_4">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
       </item>
       <item>
        <widget class="QLabel" name="label_2">
@@ -150,19 +137,6 @@
        </widget>
       </item>
       <item>
-       <spacer name="horizontalSpacer_5">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
        <widget class="QPushButton" name="btn_OpenSerial">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
@@ -189,9 +163,55 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="btn_ClearSeries">
         <property name="text">
          <string>清除曲线</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btn_SetXSize">
+        <property name="text">
+         <string>设置X范围</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="leXSize">
+        <property name="text">
+         <string>200</string>
+        </property>
+        <property name="maxLength">
+         <number>5</number>
+        </property>
+        <property name="frame">
+         <bool>true</bool>
+        </property>
+        <property name="cursorMoveStyle">
+         <enum>Qt::LogicalMoveStyle</enum>
+        </property>
+        <property name="clearButtonEnabled">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkBoxXAuto">
+        <property name="text">
+         <string>X自动</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkBoxYAuto">
+        <property name="text">
+         <string>Y自动</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>

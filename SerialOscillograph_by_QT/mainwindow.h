@@ -39,7 +39,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 private slots:
-    void readread();
+    void readData();
 
     void on_btn_OpenSerial_clicked();
 
@@ -50,7 +50,10 @@ private slots:
     void on_action_save_triggered();
 
     void on_action_load_triggered();
-    void on_pushButton_clicked();
+
+    void on_btn_ClearSeries_clicked();
+
+    void on_btn_SetXSize_clicked();
 
 private:
     QString writeDataToCSV();
@@ -71,7 +74,7 @@ private:
     QValueAxis *axisY;
 
     unsigned long int dataRecNum=0;
-    int chartSize = 200;
+    int XSize = 200;
     int timeId;
     int Xmin=0;
     int Xmax=0;
