@@ -14,7 +14,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    qDebug()<<sizeof (double);
     ui->setupUi(this);
 
     SerialSta=false;
