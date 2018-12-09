@@ -14,6 +14,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    qDebug()<<sizeof (double);
     ui->setupUi(this);
 
     SerialSta=false;
@@ -187,7 +188,7 @@ void MainWindow::on_btn_help_clicked()
                     "5.Linux系统非root用户会无法打开串口，解决方案如下：\n"
                     "    打开串口前在终端输入：sudo chmod 666 /dev/*\n"
                     "    *号为串口号，回车后输入计算机用户密码，再回车。\n";
-    QMessageBox::information(NULL, "帮助信息", strtext, QMessageBox::Ok);
+    QMessageBox::information(this, "帮助信息", strtext, QMessageBox::Ok);
 }
 
 void MainWindow::on_btn_StopDis_clicked()
@@ -292,7 +293,7 @@ void MainWindow::readDataFromCSV(QTextStream &sDataStream)
         int k=0, j=0;
         do {
             j = advplain(sline[i], tempValue, k);
-            points[i].append(QPointF(xmax++,tempValue.toFloat()));
+            points[i].append(QPointF(xmax++,tempValue.toDouble()));
             if(tempValue.toFloat()>ymax)
                 ymax=tempValue.toFloat();
             if(tempValue.toFloat()<ymin)
