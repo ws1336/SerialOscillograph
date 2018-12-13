@@ -1,7 +1,5 @@
 #include "qtso.h"
 
-
-
 #define QTSO_DATA_MAX 10
 
 struct QTSO_DATA
@@ -17,13 +15,16 @@ u8 QTSO_SetDAT(u32 size,float * dat)
 	int i=0;
 	if(size == 0 || size>10)
 		return 0;
-	QTSO_DAT.size=size;
+	//è®¾ç½®æ•°æ®çš„SIZE
+	QTSO_DAT.size=size*4;
+	//æ·»åŠ æ•°æ®
 	for(i=0;i<size;i++)
 	{
 		QTSO_DAT.data[i]=dat[i];
 	}
+	//è®¡ç®—æ ¡éªŒå€¼
 	QTSO_DAT.uCRC=0;
-	for(i=8;i<8+QTSO_DAT.size*4;i++)
+	for(i=8;i<8+QTSO_DAT.size;i++)
 	{
 		QTSO_DAT.uCRC^=((u8 *)(&QTSO_DAT))[i];
 	}
@@ -35,12 +36,14 @@ u8 QTSO_Send(u32 size,float * dat)
 	int i;
 	if(QTSO_SetDAT(size,dat)==0)
 		return 0;
-	for(i=0;i<8+QTSO_DAT.size*4;i++)
+	//å‘é€åŒ…å¤´å’Œæ•°æ®
+	for(i=0;i<8+QTSO_DAT.size;i++)
 	{
-		while((USART1->SR&0X40)==0);//Ñ­»··¢ËÍ,Ö±µ½·¢ËÍÍê±Ï   
+		while((USART1->SR&0X40)==0);//å¾ªç¯å‘é€,ç›´åˆ°å‘é€å®Œæ¯•   
 			USART1->DR =((u8 *)(&QTSO_DAT))[i];
 	}
-	while((USART1->SR&0X40)==0);//Ñ­»··¢ËÍ,Ö±µ½·¢ËÍÍê±Ï   
+	//å‘é€æ ¡éªŒå€¼
+	while((USART1->SR&0X40)==0);//å¾ªç¯å‘é€,ç›´åˆ°å‘é€å®Œæ¯•   
 			USART1->DR =QTSO_DAT.uCRC;
 	return 1;
 }

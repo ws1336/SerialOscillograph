@@ -11,16 +11,14 @@
 
 合作或意见反馈请联系ws1336@qq.com
 
-------------
 ## 获取windows版本可执行程序
 
 [![baidu](https://github.com/ws1336/SerialOscillograph/raw/master/Resources/download.jpg "下载地址")](https://github.com/ws1336/SerialOscillograph/releases)
-------------
+
 ## 软件运行示意图Ubuntu
 
 ![baidu](https://github.com/ws1336/SerialOscillograph/raw/master/Resources/shot.png "软件运行示意图Ubuntu")
-------------
+
 ## 软件运行示意图Windows7
 
 ![baidu](https://github.com/ws1336/SerialOscillograph/raw/master/Resources/shot.jpg "软件运行示意图Windows7")
-------------

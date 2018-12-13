@@ -85,61 +85,58 @@ void MainWindow::readData()
     dataRecNum+=arr.size();
     lb_StatusBar_DataRecNum->setText(QString("已接收字节：%1").arg(dataRecNum));//修改状态栏
 
-    for(int i=0;i<Channel_number;i++)//得到当前曲线points
-    {
-       points[i] = m_series[i].pointsVector();
-    }
     bool changed=false;//是否变动了points
     float rec_data[11];
     processor.add(arr);//通讯协议processor添加数据
-    while(processor.process((char *)rec_data)&&chartSta==true)//通讯成功 且 正在更新
+
+    //通讯成功&正在更新，持续添加点直至所有数据被添加到曲线
+    while(processor.process((char *)rec_data)&&chartSta==true)
     {
         Xmax++;
-        if(Xmax-Xmin>XSize)
-            Xmin+=Xmax-Xmin-XSize;
-        for(int i=0;i<((int *)rec_data)[0];i++)
+        if(Xmax>XSize)//调节X轴（窗口）显示范围
+            Xmin=Xmax-XSize;
+
+        for(int i=0;i<((int *)rec_data)[0]/4;i++)//接收到的数据为float型，每个数据4字节故/4
         {
-           points[i].append(QPointF(Xmax,rec_data[i+1]));
-
+           m_series[i].append(QPointF(Xmax,rec_data[i+1]));
         }
-
         changed = true;
     }
-    if(changed)//变动了points，则重绘
+    if(changed)//变动了points，重新计算曲线最大最小值
     {
         Ymin=3.4028235e38f;
         Ymax=1.4e-45f;
         for(int i=0;i<Channel_number;i++)
         {
-           m_series[i].replace(points[i]);
-
-           if(points[i].size()>XSize)
+           //数据量超过窗口长度
+           int pointssize=m_series[i].pointsVector().size();
+           if(pointssize>XSize)
            {
-               for(int j=points[i].size()-XSize;j<points[i].size();j++)
+               for(int j=pointssize-XSize;j<pointssize;j++)
                {
-                   if(points[i].at(j).y()>Ymax)
-                       Ymax=points[i].at(j).y();
-                   if(points[i].at(j).y()<Ymin)
-                       Ymin=points[i].at(j).y();
+                   if(m_series[i].pointsVector().at(j).y()>Ymax)
+                       Ymax=m_series[i].pointsVector().at(j).y();
+                   if(m_series[i].pointsVector().at(j).y()<Ymin)
+                       Ymin=m_series[i].pointsVector().at(j).y();
                }
            }
-           else
+           else//数据量不足窗口长度
            {
-               for(int j=0;j<points[i].size();j++)
+               for(int j=0;j<pointssize;j++)
                {
-                   if(points[i].at(j).y()>Ymax)
-                       Ymax=points[i].at(j).y();
-                   if(points[i].at(j).y()<Ymin)
-                       Ymin=points[i].at(j).y();
+                   if(m_series[i].pointsVector().at(j).y()>Ymax)
+                       Ymax=m_series[i].pointsVector().at(j).y();
+                   if(m_series[i].pointsVector().at(j).y()<Ymin)
+                       Ymin=m_series[i].pointsVector().at(j).y();
                }
            }
         }
+        //重新设置坐标轴（窗口）显示范围
         if(ui->checkBoxXAuto->isChecked())
             axisX->setRange(Xmin,Xmax);
         if(ui->checkBoxYAuto->isChecked())
             axisY->setRange(Ymin,Ymax);
     }
-
 }
 
 void MainWindow::on_btn_OpenSerial_clicked()
@@ -180,13 +177,14 @@ void MainWindow::on_btn_OpenSerial_clicked()
 
 void MainWindow::on_btn_help_clicked()
 {
-    QString strtext="1.串口默认设置：1起始位，1停止位，8数据位，无校验位。\n"
-                    "2.数据格式：\"QTSO\"+通道数(int32)+各通道数据(float)。\n"
-                    "3.缩放方式：左键选中区域放大，右键单击区域缩小。\n"
-                    "4.数据保存格式：*.csv\n"
+    QString strtext="1.串口通讯格式：1起始位，1停止位，8数据位，无校验位。\n"
+                    "2.数据组织形式：\"QTSO\"+通道数(int32)+各通道数据(float)\n"
+                    "   参考本项目代码以及提供的STM32单片机配套代码。\n"
+                    "3.缩放方式：按下左键选中区域放大，右键单击区域缩小。\n"
+                    "4.数据保存格式：***.csv\n"
                     "5.Linux系统非root用户会无法打开串口，解决方案如下：\n"
-                    "    打开串口前在终端输入：sudo chmod 666 /dev/*\n"
-                    "    *号为串口号，回车后输入计算机用户密码，再回车。\n";
+                    "   打开串口前在终端输入：sudo chmod 666 /dev/*\n"
+                    "   *号为串口号，回车后输入计算机用户密码，再回车。\n";
     QMessageBox::information(this, "帮助信息", strtext, QMessageBox::Ok);
 }
 

@@ -9,14 +9,16 @@ public:
     void add(QByteArray &input);
     void clear();
     bool process(char* output);
+    int getFullsize() const;
+    void setFullsize(int value);
 private:
     int isStart();
     int isEnd();
     bool isFull();
 private:
-    bool startFlag=false;
+    bool startFlag;
     int loc;
-    int fullsize=4096;
+    int fullsize;
     QByteArray data;
 };
 

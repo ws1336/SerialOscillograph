@@ -2,7 +2,9 @@
 
 DataProcess::DataProcess()
 {
-
+    fullsize = 4096;
+    startFlag = false;
+    loc = 0;
 }
 
 bool DataProcess::process(char *output)
@@ -17,11 +19,12 @@ bool DataProcess::process(char *output)
             loc=0;
         }
         //如果接收完成，正式处理
-        if(isEnd())
+        loc=isEnd();
+        if(loc)
         {
-            for(int i=4;i<isEnd()-1;i++)
+            for(int i=4;i<loc-1;i++)
                 output[i-4]=data.at(i);
-            data=data.mid(isEnd());
+            data=data.mid(loc);
             startFlag=false;
             return true;
         }
@@ -30,19 +33,12 @@ bool DataProcess::process(char *output)
             return false;
         }
     }
-    //判断是否接受超量
-    if(isFull())
-    {
-        startFlag=false;
-        loc=0;
-        data=data.mid(fullsize-4);
-    }
     return false;
 }
 
 int DataProcess::isStart()
 {
-    if(data.size()<=4)
+    if(data.size()<8)
         return 0xffffffff;
     for(int i=0;i<data.size()-4;i++)
     {
@@ -66,15 +62,15 @@ int DataProcess::isEnd()
     ((char*)(&num))[1]=data.at(5);
     ((char*)(&num))[2]=data.at(6);
     ((char*)(&num))[3]=data.at(7);
-    if(data.size()>=8+num*4+1)
+    if(data.size()>=8+num+1)
     {
-        unsigned char uCRC=data.at(8);
-        for(int i=9;i<8+num*4;i++)
+        unsigned char uCRC=0;
+        for(int i=8;i<8+num;i++)
         {
             uCRC^=data.at(i);
         }
-        if(uCRC==(unsigned char)data.at(8+num*4))
-            return 8+num*4+1;
+        if(uCRC==(unsigned char)data.at(8+num))
+            return 8+num+1;
         else
         {
             qDebug()<<"校验错误";
@@ -93,10 +89,27 @@ bool DataProcess::isFull()
     return false;
 }
 
+int DataProcess::getFullsize() const
+{
+    return fullsize;
+}
+
+void DataProcess::setFullsize(int value)
+{
+    fullsize = value;
+}
+
 void DataProcess::add(QByteArray &input)
 {
     data.append(input);
-
+    //判断是否接受超量
+    if(isFull())
+    {
+        startFlag=false;
+        loc=0;
+        data=data.mid(input.size());
+    }
+    
 }
 
 void DataProcess::clear()
